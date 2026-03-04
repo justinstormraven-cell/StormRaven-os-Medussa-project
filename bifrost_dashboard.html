@@ -1,0 +1,467 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Shield, 
+  Terminal, 
+  Activity, 
+  Lock, 
+  Zap, 
+  Eye, 
+  Network, 
+  Flame, 
+  Cpu, 
+  Globe,
+  Ghost,
+  AlertTriangle,
+  ChevronRight,
+  Command,
+  Key
+} from 'lucide-react';
+
+const API_BASE = "http://127.0.0.1:5005";
+
+const App = () => {
+  const [token, setToken] = useState(null);
+  const [password, setPassword] = useState("");
+  const [view, setView] = useState('dashboard');
+  const [logs, setLogs] = useState([]);
+  const [command, setCommand] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const terminalEndRef = useRef(null);
+
+  // Auto-scroll terminal
+  useEffect(() => {
+    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
+  const addLog = (msg, type = 'info') => {
+    const timestamp = new Date().toLocaleTimeString();
+    setLogs(prev => [...prev, { timestamp, msg, type }]);
+  };
+
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setAuthError("");
+    try {
+      // Mocking the API response if the backend isn't reachable for this preview
+      // In a real environment, this calls the Bifröst /api/auth endpoint
+      if (password === "awaken") {
+        setToken("SR-III-VALID-TOKEN-" + Math.random().toString(36).substring(7));
+        addLog("Cryptographic validation successful. Bifröst gateway opened.", "success");
+      } else {
+        setAuthError("Authorization Denied. Credential mismatch.");
+      }
+    } catch (err) {
+      setAuthError("Gateway connection failure.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const executeApi = async (endpoint, method = 'POST', body = {}) => {
+    if (!token) return;
+    setLoading(true);
+    addLog(`Invoking ${endpoint.split('/').pop().toUpperCase()}...`, 'info');
+    
+    try {
+      // Simulation of API calls based on the StormRaven backend spec
+      // In production, use: fetch(`${API_BASE}${endpoint}`, { ... })
+      await new Promise(r => setTimeout(r, 800)); // Simulate latency
+      
+      let result = "Response metadata received.";
+      
+      // Logic simulation based on endpoint
+      switch(endpoint) {
+        case '/api/scan': result = "Hosts identified: 192.168.1.1 [00:A1...], 192.168.1.45 [BC:23...]"; break;
+        case '/api/fenrir': result = `Interrogation of ${body.target} concluded. Ports 22, 80, 443 active.`; break;
+        case '/api/strike': result = `STRIKE: ${body.command} executed. Status: 0`; break;
+        case '/api/sleipnir/hella': result = "Hella Sequence engaged. MAC Obfuscated. Proxychains initialized."; break;
+        case '/api/jormungandr/lockdown': result = "ABSOLUTE ZERO isolation engaged. All traffic dropped."; break;
+        default: result = "Operation Nominal.";
+      }
+
+      addLog(result, 'success');
+    } catch (err) {
+      addLog(`Critical error during invocation: ${err.message}`, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4 font-mono">
+        <div className="max-w-md w-full bg-[#0f172a] border border-[#7e22ce]/30 rounded-lg p-8 shadow-[0_0_50px_rgba(126,34,206,0.1)]">
+          <div className="flex flex-col items-center mb-8">
+            <div className="w-16 h-16 bg-[#7e22ce]/10 rounded-full flex items-center justify-center mb-4 border border-[#7e22ce]/50">
+              <Shield className="text-[#a855f7] w-8 h-8" />
+            </div>
+            <h1 className="text-2xl font-bold text-white tracking-widest uppercase">StormRaven III</h1>
+            <p className="text-[#94a3b8] text-xs mt-2 uppercase tracking-tighter">Medussa Control Interface</p>
+          </div>
+          
+          <form onSubmit={handleAuth} className="space-y-6">
+            <div>
+              <label className="block text-[#a855f7] text-[10px] uppercase mb-2 tracking-widest">Access Key</label>
+              <div className="relative">
+                <Key className="absolute left-3 top-3 text-[#64748b] w-4 h-4" />
+                <input 
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[#1e293b] border border-[#334155] rounded p-2.5 pl-10 text-white focus:outline-none focus:border-[#a855f7]/50 transition-colors"
+                  placeholder="AUTHORIZATION_REQUIRED"
+                />
+              </div>
+            </div>
+            {authError && <p className="text-red-400 text-[10px] uppercase text-center">{authError}</p>}
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-[#7e22ce] hover:bg-[#9333ea] text-white py-3 rounded uppercase text-sm font-bold tracking-widest transition-all active:scale-95 disabled:opacity-50"
+            >
+              {loading ? "VALIDATING..." : "AWAKEN"}
+            </button>
+          </form>
+          <div className="mt-8 pt-6 border-t border-[#334155] flex justify-between items-center opacity-40">
+            <span className="text-[8px] text-[#94a3b8]">BIFROST_V3.0</span>
+            <span className="text-[8px] text-[#94a3b8]">OBSIDIAN_LEVIATHAN</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#020617] text-[#e2e8f0] font-mono flex flex-col md:flex-row overflow-hidden">
+      {/* Sidebar - Taxonomic Navigation */}
+      <aside className="w-full md:w-64 bg-[#0f172a] border-r border-[#7e22ce]/20 flex flex-col">
+        <div className="p-6 border-b border-[#7e22ce]/20 flex items-center gap-3">
+          <Shield className="text-[#a855f7] w-6 h-6" />
+          <div>
+            <h2 className="text-sm font-bold tracking-widest text-white">MEDUSSA</h2>
+            <p className="text-[9px] text-[#94a3b8]">STORMRAVEN_ENV</p>
+          </div>
+        </div>
+        
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <NavGroup title="Asgard (Orchestration)">
+            <NavItem active={view === 'dashboard'} onClick={() => setView('dashboard')} icon={<Cpu size={14}/>} label="Odin (SIEM)" />
+            <NavItem active={view === 'vault'} onClick={() => setView('vault')} icon={<Lock size={14}/>} label="Loki (Vault)" />
+          </NavGroup>
+
+          <NavGroup title="Midgard (Kinetic)">
+            <NavItem active={view === 'thor'} onClick={() => setView('thor')} icon={<Zap size={14}/>} label="Thor (Strikes)" />
+            <NavItem active={view === 'mjolnir'} onClick={() => setView('mjolnir')} icon={<Network size={14}/>} label="Mjolnir (ARP)" />
+            <NavItem active={view === 'fenrir'} onClick={() => setView('fenrir')} icon={<Eye size={14}/>} label="Fenrir (TCP)" />
+          </NavGroup>
+
+          <NavGroup title="Vanaheim (Tactical)">
+            <NavItem active={view === 'sleipnir'} onClick={() => setView('sleipnir')} icon={<Ghost size={14}/>} label="Sleipnir (Anon)" />
+            <NavItem active={view === 'jormungandr'} onClick={() => setView('jormungandr')} icon={<Globe size={14}/>} label="Jörmungandr" />
+            <NavItem active={view === 'demogorgon'} onClick={() => setView('demogorgon')} icon={<Flame size={14}/>} label="Demogorgon" />
+          </NavGroup>
+        </nav>
+
+        <div className="p-4 bg-[#020617] border-t border-[#7e22ce]/20">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[9px] text-[#94a3b8] uppercase">System Health</span>
+            <span className="text-[9px] text-green-400">NOMINAL</span>
+          </div>
+          <div className="w-full bg-[#1e293b] h-1 rounded-full overflow-hidden">
+            <div className="bg-[#a855f7] h-full w-3/4 animate-pulse"></div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Header bar */}
+        <header className="h-16 border-b border-[#7e22ce]/20 flex items-center justify-between px-8 bg-[#0f172a]/50 backdrop-blur-md">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-ping"></div>
+              <span className="text-xs text-[#94a3b8] uppercase tracking-widest">Bifröst Link: Active</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-6">
+             <span className="text-[10px] text-[#a855f7] font-bold">UID: ROOT_SUPERUSER</span>
+             <button onClick={() => setToken(null)} className="text-[10px] hover:text-red-400 transition-colors uppercase border border-red-900/50 px-2 py-1 rounded">Terminate Session</button>
+          </div>
+        </header>
+
+        {/* Dynamic View Content */}
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          {view === 'dashboard' && <DashboardView onAction={executeApi} />}
+          {view === 'thor' && <ThorTerminal execute={executeApi} logs={logs} setLogs={setLogs} />}
+          {view === 'mjolnir' && <ModuleView 
+            title="Mjolnir: Subnet Enumeration" 
+            desc="Heuristic discovery of active entities within local subnetstrata."
+            icon={<Network className="text-[#a855f7]"/>}
+            actionLabel="Initiate ARP Sweep"
+            onClick={() => executeApi('/api/scan')}
+          />}
+          {view === 'fenrir' && <FenrirInterrogation onInterrogate={(target) => executeApi('/api/fenrir', 'POST', { target })} />}
+          {view === 'sleipnir' && <SleipnirTactics onAction={executeApi} />}
+          {view === 'vault' && <VaultView onAction={executeApi} />}
+          {view === 'jormungandr' && <ModuleView 
+            title="Jörmungandr: Network Quarantine" 
+            desc="Absolute Zero Isolation. Imposes kernel-level traffic drops to sanitize network environment."
+            icon={<Globe className="text-red-500"/>}
+            actionLabel="EXECUTE QUARANTINE"
+            danger
+            onClick={() => executeApi('/api/jormungandr/lockdown')}
+          />}
+          {view === 'demogorgon' && <ModuleView 
+            title="Demogorgon: Containment Matrix" 
+            desc="Instantiates multi-threaded shadow sockets to intercept lateral movement attempts."
+            icon={<Flame className="text-orange-500"/>}
+            actionLabel="Awaken Trap"
+            onClick={() => executeApi('/api/demogorgon/awaken')}
+          />}
+        </div>
+
+        {/* Global Terminal / Activity Monitor */}
+        <div className="h-48 bg-black/80 border-t border-[#7e22ce]/30 flex flex-col font-mono text-[11px]">
+          <div className="flex items-center px-4 py-1.5 bg-[#0f172a] border-b border-[#7e22ce]/20 justify-between">
+             <div className="flex items-center gap-2">
+               <Terminal size={12} className="text-[#a855f7]"/>
+               <span className="text-[10px] uppercase text-[#94a3b8]">Shadow Telemetry Monitor</span>
+             </div>
+             <button onClick={() => setLogs([])} className="text-[9px] text-[#64748b] hover:text-white uppercase underline">Purge Display</button>
+          </div>
+          <div className="flex-1 overflow-y-auto p-4 space-y-1">
+            {logs.length === 0 && <p className="text-[#334155] italic">Waiting for telemetry ingestion...</p>}
+            {logs.map((log, i) => (
+              <div key={i} className="flex gap-3">
+                <span className="text-[#334155]">[{log.timestamp}]</span>
+                <span className={`${
+                  log.type === 'error' ? 'text-red-400' : 
+                  log.type === 'success' ? 'text-green-400' : 
+                  'text-[#a855f7]'
+                }`}>
+                  {log.msg}
+                </span>
+              </div>
+            ))}
+            <div ref={terminalEndRef} />
+          </div>
+        </div>
+      </main>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #7e22ce; }
+      `}} />
+    </div>
+  );
+};
+
+// Sub-components
+const NavGroup = ({ title, children }) => (
+  <div className="mb-6">
+    <h3 className="text-[9px] uppercase tracking-[0.2em] text-[#64748b] font-bold mb-2 ml-2">{title}</h3>
+    <div className="space-y-1">{children}</div>
+  </div>
+);
+
+const NavItem = ({ icon, label, active, onClick }) => (
+  <button 
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 px-3 py-2 rounded text-xs transition-all ${
+      active 
+        ? 'bg-[#7e22ce]/20 text-[#a855f7] border-l-2 border-[#a855f7]' 
+        : 'text-[#94a3b8] hover:bg-[#1e293b] hover:text-white'
+    }`}
+  >
+    {icon}
+    <span className="tracking-wider">{label}</span>
+  </button>
+);
+
+const DashboardView = ({ onAction }) => (
+  <div className="max-w-4xl mx-auto space-y-8">
+    <div className="flex items-center justify-between">
+      <h1 className="text-2xl font-bold tracking-widest uppercase text-white">Systemic Overview</h1>
+      <div className="flex gap-2">
+        <button onClick={() => onAction('/api/heketa/audit')} className="px-4 py-1.5 border border-[#a855f7]/50 text-[#a855f7] text-[10px] uppercase rounded hover:bg-[#a855f7]/10">Run Heketa Audit</button>
+      </div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <StatCard label="Memory Volatility" value="100%" sub="Transient RAM State" icon={<Activity size={20}/>} color="text-green-400" />
+      <StatCard label="Encrypted Records" value="482" sub="Loki Vault Count" icon={<Lock size={20}/>} color="text-[#a855f7]" />
+      <StatCard label="VPN Nodes" value="Active" sub="Munnin Sequence" icon={<Globe size={20}/>} color="text-blue-400" />
+    </div>
+
+    <div className="bg-[#0f172a] border border-[#7e22ce]/20 rounded-lg p-6">
+      <h3 className="text-sm font-bold uppercase tracking-widest mb-6 border-b border-[#1e293b] pb-2">Active Sentinel Status (Ginnungagap)</h3>
+      <div className="space-y-4">
+        <SentinelItem label="Kernel Integrity" status="Secure" />
+        <SentinelItem label="Bifröst Gateway" status="Authenticated" />
+        <SentinelItem label="Niflheim Vault" status="Sealed" />
+      </div>
+    </div>
+  </div>
+);
+
+const StatCard = ({ label, value, sub, icon, color }) => (
+  <div className="bg-[#0f172a] border border-[#7e22ce]/20 p-6 rounded-lg">
+    <div className="flex justify-between items-start mb-4">
+      <span className="text-[10px] text-[#94a3b8] uppercase tracking-wider">{label}</span>
+      <div className={`${color} opacity-80`}>{icon}</div>
+    </div>
+    <div className={`text-2xl font-bold ${color}`}>{value}</div>
+    <div className="text-[9px] text-[#475569] mt-1">{sub}</div>
+  </div>
+);
+
+const SentinelItem = ({ label, status }) => (
+  <div className="flex items-center justify-between">
+    <span className="text-xs text-[#94a3b8]">{label}</span>
+    <span className="text-[10px] bg-green-500/10 text-green-500 px-2 py-0.5 rounded border border-green-500/20">{status}</span>
+  </div>
+);
+
+const ThorTerminal = ({ execute, logs, setLogs }) => {
+  const [cmd, setCmd] = useState("");
+  
+  const submit = (e) => {
+    e.preventDefault();
+    if (!cmd.trim()) return;
+    execute('/api/strike', 'POST', { command: cmd });
+    setCmd("");
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto h-full flex flex-col">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold tracking-widest uppercase text-white flex items-center gap-3">
+          <Zap className="text-[#a855f7]" /> Thor Kinetic Vector
+        </h1>
+        <p className="text-xs text-[#64748b] mt-2">Native shell invocation via authenticated sanitization engine (Heimdall).</p>
+      </div>
+
+      <div className="flex-1 bg-black rounded border border-[#a855f7]/30 p-4 font-mono text-sm overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-y-auto space-y-2 mb-4">
+           <p className="text-[#475569]">STORMRAVEN Shell v3.0.0-PROX</p>
+           <p className="text-[#475569]">Ready for kinetic input...</p>
+           {logs.filter(l => l.msg.includes('STRIKE')).map((l, i) => (
+             <div key={i} className="text-green-500">
+               <span className="text-[#a855f7] mr-2">$</span> {l.msg}
+             </div>
+           ))}
+        </div>
+        <form onSubmit={submit} className="flex gap-2 border-t border-[#1e293b] pt-4">
+          <span className="text-[#a855f7] py-2">$</span>
+          <input 
+            autoFocus
+            type="text"
+            value={cmd}
+            onChange={(e) => setCmd(e.target.value)}
+            className="flex-1 bg-transparent border-none outline-none text-white py-2"
+            placeholder="enter_directive"
+          />
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const FenrirInterrogation = ({ onInterrogate }) => {
+  const [target, setTarget] = useState("");
+  return (
+    <div className="max-w-xl mx-auto bg-[#0f172a] border border-[#7e22ce]/20 p-8 rounded-lg">
+      <div className="flex items-center gap-4 mb-8">
+        <Eye className="text-[#a855f7] w-8 h-8" />
+        <h2 className="text-xl font-bold text-white uppercase tracking-wider">Fenrir: TCP Interrogation</h2>
+      </div>
+      <div className="space-y-6">
+        <div>
+          <label className="block text-[10px] text-[#64748b] uppercase mb-2">Target Address / Subnet</label>
+          <input 
+            type="text" 
+            value={target}
+            onChange={(e) => setTarget(e.target.value)}
+            placeholder="127.0.0.1"
+            className="w-full bg-[#020617] border border-[#334155] rounded p-2.5 text-white outline-none focus:border-[#a855f7]"
+          />
+        </div>
+        <button 
+          onClick={() => onInterrogate(target)}
+          className="w-full py-3 bg-[#7e22ce] text-white rounded uppercase text-xs font-bold tracking-widest hover:bg-[#9333ea]"
+        >
+          Begin Deep Scan
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const SleipnirTactics = ({ onAction }) => (
+  <div className="max-w-4xl mx-auto space-y-6">
+    <h1 className="text-2xl font-bold tracking-widest uppercase text-white mb-8">Sleipnir: Anonymity Protocols</h1>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-[#0f172a] border border-[#7e22ce]/20 p-6 rounded-lg">
+        <h3 className="text-sm font-bold text-white uppercase mb-2">Munnin Sequence</h3>
+        <p className="text-xs text-[#64748b] mb-6">Dynamic rotation of virtual private network (Wireguard) endpoints to confound traffic analysis.</p>
+        <button onClick={() => onAction('/api/sleipnir/munnin')} className="w-full py-2 border border-blue-500/50 text-blue-400 rounded text-[10px] uppercase font-bold hover:bg-blue-500/10 tracking-widest">Rotate Endpoints</button>
+      </div>
+      <div className="bg-[#0f172a] border border-[#7e22ce]/20 p-6 rounded-lg">
+        <h3 className="text-sm font-bold text-white uppercase mb-2">Hella Sequence</h3>
+        <p className="text-xs text-[#64748b] mb-6">Compels operating environment into transient RAMDisk state with MAC obfuscation.</p>
+        <button onClick={() => onAction('/api/sleipnir/hella')} className="w-full py-2 border border-[#a855f7]/50 text-[#a855f7] rounded text-[10px] uppercase font-bold hover:bg-[#a855f7]/10 tracking-widest">Engage Stealth State</button>
+      </div>
+    </div>
+  </div>
+);
+
+const VaultView = ({ onAction }) => (
+  <div className="max-w-4xl mx-auto">
+    <div className="flex justify-between items-center mb-8">
+      <h1 className="text-2xl font-bold tracking-widest uppercase text-white">Loki Vault</h1>
+      <button onClick={() => onAction('/api/vault')} className="text-xs bg-[#7e22ce] px-4 py-2 rounded text-white font-bold uppercase tracking-widest">Refresh Encrypted Logs</button>
+    </div>
+    <div className="bg-black/40 border border-[#7e22ce]/20 rounded-lg p-10 flex flex-col items-center text-center">
+      <Lock size={48} className="text-[#334155] mb-6" />
+      <h2 className="text-lg text-[#94a3b8] uppercase font-bold mb-2">Shadow Repository Sealed</h2>
+      <p className="text-xs text-[#475569] max-w-sm">Access to Niflheim records requires cryptographic decryption of the AES-256 Fernet stream.</p>
+    </div>
+  </div>
+);
+
+const ModuleView = ({ title, desc, icon, actionLabel, onClick, danger = false }) => (
+  <div className="max-w-2xl mx-auto bg-[#0f172a] border border-[#7e22ce]/20 rounded-lg overflow-hidden">
+    <div className="p-8">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 rounded bg-black flex items-center justify-center border border-[#1e293b]">
+          {icon}
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-white uppercase tracking-wider">{title}</h2>
+          <p className="text-xs text-[#64748b] mt-1 uppercase tracking-tighter">Status: Standby</p>
+        </div>
+      </div>
+      <p className="text-sm text-[#94a3b8] leading-relaxed mb-8">{desc}</p>
+      <button 
+        onClick={onClick}
+        className={`w-full py-4 rounded font-bold uppercase text-xs tracking-[0.2em] transition-all active:scale-95 ${
+          danger 
+            ? 'bg-red-600 hover:bg-red-700 text-white shadow-[0_0_20px_rgba(220,38,38,0.2)]' 
+            : 'bg-[#7e22ce] hover:bg-[#9333ea] text-white shadow-[0_0_20px_rgba(126,34,206,0.2)]'
+        }`}
+      >
+        {actionLabel}
+      </button>
+    </div>
+    <div className="bg-black/50 px-8 py-3 flex justify-between border-t border-[#1e293b]">
+      <span className="text-[9px] text-[#475569] uppercase font-bold">Module ID: SR-MOD-{Math.floor(Math.random() * 9000 + 1000)}</span>
+      <span className="text-[9px] text-green-500/50 uppercase font-bold">Ready</span>
+    </div>
+  </div>
+);
+
+export default App;

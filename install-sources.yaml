@@ -1,0 +1,83 @@
+#cloud-config
+autoinstall:
+  version: 1
+  interactive-sections:
+    - none
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  network:
+    network:
+      version: 2
+      ethernets:
+        all-en:
+          match:
+            name: "e*"
+          dhcp4: true
+        all-wl:
+          match:
+            name: "w*"
+          dhcp4: true
+  storage:
+    layout:
+      name: direct
+    config:
+      - type: disk
+        id: disk-0
+        match:
+          size: largest
+      - type: partition
+        id: partition-0
+        device: disk-0
+        size: 1G
+        flag: boot
+      - type: partition
+        id: partition-1
+        device: disk-0
+        size: -1
+      - type: format
+        id: format-0
+        fstype: fat32
+        volume: partition-0
+      - type: format
+        id: format-1
+        fstype: ext4
+        volume: partition-1
+      - type: mount
+        id: mount-0
+        device: format-0
+        path: /boot/efi
+      - type: mount
+        id: mount-1
+        device: format-1
+        path: /
+  identity:
+    hostname: Leviathan-Node
+    username: stormraven
+    password: "$6$exXG6pOf9u9D9p7S$6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O.6E6O." # Password: raven
+  packages:
+    - build-essential
+    - git
+    - python3-pip
+    - rsync
+    - curl
+    - libssl-dev
+    - libelf-dev
+    - dwarves
+    - zstd
+    - wireguard
+    - python3-flask
+    - python3-jwt
+  user-data:
+    runcmd:
+      - echo "Initialising StormRaven Realms..."
+      - mkdir -p /opt/StormRaven_Native/bin/core
+      - fallocate -l 8G /swapfile
+      - chmod 600 /swapfile
+      - mkswap /swapfile
+      - swapon /swapfile
+      - echo '/swapfile none swap sw 0 0' >> /etc/fstab
+      - cd /tmp && git clone https://github.com/justinstormraven-cell/StormRaven-os-Medussa-project.git
+      - cp -r /tmp/StormRaven-os-Medussa-project/* /opt/StormRaven_Native/
+      - # Triggering the forge automatically on first boot
+      - chmod +x /opt/StormRaven_Native/Fenris_Forge.sh

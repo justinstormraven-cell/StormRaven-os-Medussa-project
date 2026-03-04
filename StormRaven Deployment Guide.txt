@@ -1,0 +1,31 @@
+﻿StormRaven Operating System: Protocol for Automated Deployment (Iteration III)
+Herein is delineated the formal protocol for the instantiation of the StormRaven Operating Environment upon AMD64 computational architectures. This procedural documentation has been rigorously calibrated for optimal execution upon the HP Laptop 15-fd0xxx hardware apparatus, utilizing the requisite assets maintained within the designated StormRavenOS repository.
+Hardware Specifications: Intel N200 Processor | 4 Gigabytes Random Access Memory | 128 Gigabytes Solid-State Drive Storage
+Constituent Systemic Components:
+1. The Leviathan Core: A thoroughly hardened iteration of the 6.17 Linux Kernel, incorporating comprehensive Kernel Self Protection Project (KSPP) mitigations.
+2. The Medussa Framework: A C#-oriented architecture providing foundational kernel services alongside a sophisticated decision-calculus engine.
+3. The Bifröst Gateway: A Representational State Transfer (REST) Application Programming Interface (API), constructed via the Python programming language, designed to facilitate the modular orchestration of systemic daemons.
+Phase I: The Forge (Kernel Compilation Procedure)
+Given the inherent hardware constraints of the target apparatus—specifically the limitation of four gigabytes of random-access memory—the execution of a "Slim Forge" methodology is strictly mandated. This highly specialized compilation procedure systematically excises extraneous debugging symbols and temporarily allocates a transient swap file, thereby mitigating the probability of catastrophic system exhaustion or resource-induced deadlocks.
+1. Preliminary Verification
+It must be verified that the requisite repository assets have been successfully synchronized and currently reside within the /opt/StormRavenOS directory prior to the initiation of subsequent procedures.
+2. Procedural Execution
+The unified orchestrational script shall be invoked via the following codified directives:
+sudo chmod +x Fenris_Forge.sh
+sudo ./Fenris_Forge.sh
+
+Phase II: The Convergence (Systemic Installation)
+Following the successful synthesis of the requisite Debian binary packages (.deb artifacts) by the aforementioned Forge process, the installation shall proceed thusly:
+1. Core Injection: The foundational kernel substrate shall be installed via the execution of the command:
+sudo dpkg -i ../linux-image-*-StormRaven-Leviathan.deb
+2. Microservice Initialization: The compilation script is engineered to autonomously establish symbolic linkages for the requisite Python-based daemons (specifically designated as Thor, Loki, and Odin) from the primary repository into the /usr/local/bin/stormraven execution directory.
+3. Bootloader Finalization: The Grand Unified Bootloader (GRUB) shall be updated to reflect the newly integrated kernel environment via the command:
+sudo update-grub
+4. Systemic Ignition: A complete power cycling of the computational apparatus is required to activate the hardened infrastructure:
+sudo reboot
+Post-Installation Verification Parameters
+   * Kernel Identity Validation: The execution of the uname -a diagnostic shall be utilized to ascertain that the active kernel reports the "StormRaven-Leviathan" nomenclature.
+   * GParted Operational Compatibility: It is posited that the GNOME Partition Editor (GParted), specifically versions 1.5.0 and subsequent iterations, retains comprehensive operability upon this hardened kernel architecture, thereby permitting continued partition governance within the designated "Alfheim" storage realm.
+   * Sentinel Monitoring Verification: The systemic integrity apparatus, designated as "Ginnungagap," must be verified for active operational status via the execution of the systemctl status ginnungagap directive.
+Fallback and Recovery Protocol
+In the event that the computational apparatus exhibits hardware incompatibilities—such as those potentially arising from the F.18 firmware iteration—it is recommended that the operator leverage the GRUB fallback interface to revert to the generic 6.17 Linux kernel. Subsequently, the Forge protocol ought to be re-executed utilizing the make localmodconfig parameter to ensure strict hardware-driver alignment.

@@ -1,0 +1,42 @@
+﻿--- StormRaven OS Legacy Preseed (Iteration III) ---
+Target: Ubuntu 24.04 AMD64
+Localization
+d-i debian-installer/locale string en_US
+d-i console-setup/ask_detect boolean false
+d-i keyboard-configuration/xkb-keymap select us
+Network
+d-i netcfg/choose_interface select auto
+d-i netcfg/get_hostname string Leviathan-Node
+d-i netcfg/get_domain string stormraven.local
+Clock
+d-i clock-setup/utc boolean true
+d-i time/zone string UTC
+Partitioning (Optimized for 128GB SSD)
+d-i partman-auto/method string regular
+d-i partman-auto/choose_recipe select atomic
+d-i partman-partitioning/confirm_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+User Account
+d-i passwd/user-fullname string StormRaven Operator
+d-i passwd/username string stormraven
+d-i passwd/user-password password raven
+d-i passwd/user-password-again password raven
+d-i user-setup/allow-password-weak boolean true
+Package Selection
+tasksel tasksel/first multiselect standard
+d-i pkgsel/include string build-essential git python3-pip libssl-dev dwarves zstd wireguard
+d-i pkgsel/upgrade select full-upgrade
+Bootloader
+d-i grub-installer/only_debian boolean true
+Post-Install (Forge Trigger)
+d-i preseed/late_command string
+in-target mkdir -p /opt/StormRaven_Native;
+in-target fallocate -l 8G /swapfile;
+in-target chmod 600 /swapfile;
+in-target mkswap /swapfile;
+in-target swapon /swapfile;
+in-target git clone https://github.com/justinstormraven-cell/StormRaven-os-Medussa-project.git /tmp/medussa;
+in-target cp -r /tmp/medussa/* /opt/StormRaven_Native/;
+d-i finish-install/reboot_into_installer boolean false
